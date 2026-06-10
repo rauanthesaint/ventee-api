@@ -4,7 +4,7 @@ import type { PinoLoggerOptions } from "fastify/types/logger";
 import z from "zod";
 
 const schema = z.object({
-    PORT: z.int().min(1000).max(9999).default(5000),
+    PORT: z.coerce.number().int().min(1000).max(9999).default(5000),
     NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
     HOSTNAME: z.url(),
     BOT_TOKEN: z.string().min(1),
