@@ -2,11 +2,9 @@ import Fastify from "fastify";
 import { env, loggerOptions } from "./config.js";
 import { Bot, webhookCallback } from "grammy";
 
-const application = Fastify({
+const app = Fastify({
     logger: env.NODE_ENV === "development" ? loggerOptions : true,
 });
-
-// add cors plugin
 
 const bot = new Bot(env.BOT_TOKEN);
 
@@ -14,19 +12,24 @@ bot.command("start", async (ctx) => {
     await ctx.reply("Hello!");
 });
 
-application.register(
-    (instance) =>
+app.register(
+    (instance) => {
         instance.get("/", async (req, rep) => {
             return rep.status(200).send(req.headers);
-        }),
-    { prefix: "v1" },
+        });
+
+        if (env.NODE_ENV === "production") {
+            instance.post("/webhook", webhookCallback(bot, "fastify"));
+        }
+    },
+    { prefix: "/v1" },
 );
 
-if (env.NODE_ENV === "development") {
+await app.listen({ port: env.PORT, host: "0.0.0.0" });
+
+if (env.NODE_ENV === "production") {
+    await bot.api.setWebhook(`${env.HOSTNAME}/v1/webhook`);
+} else {
     await bot.api.deleteWebhook();
     await bot.start();
-} else {
-    application.post("/webhook", webhookCallback(bot, "fastify"));
-    await application.listen({ port: env.PORT });
-    await bot.api.setWebhook(`${env.HOSTNAME}/webhook`);
 }
