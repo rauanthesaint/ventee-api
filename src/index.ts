@@ -1,5 +1,5 @@
 import Fastify from "fastify";
-import { env, loggerOptions } from "./config";
+import { env, loggerOptions } from "./config.js";
 import { Bot, webhookCallback } from "grammy";
 
 const application = Fastify({

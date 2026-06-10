@@ -1,6 +1,6 @@
 import "dotenv/config";
 import type { FastifyLoggerOptions } from "fastify";
-import type { PinoLoggerOptions } from "fastify/types/logger";
+import type { PinoLoggerOptions } from "fastify/types/logger.js";
 import z from "zod";
 
 const schema = z.object({
